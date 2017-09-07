@@ -1,4 +1,6 @@
-/*! ColReorder 1.3.3
+/*
+ *  CHECK FIX IN fnMouseMove function before upgrading
+ *	! ColReorder 1.3.3
  * ©2010-2015 SpryMedia Ltd - datatables.net/license
  */
 
@@ -965,6 +967,23 @@ $.extend( ColReorder.prototype, {
 			}
 			this._fnCreateDragNode();
 		}
+		
+		// this addition is necessary for horizontal scroll while moving column
+		var scrollHead = $(this.s.dt.nTableWrapper).find('.dataTables_scrollHead');
+		var scrollBody = $(this.s.dt.nTableWrapper).find('.dataTables_scrollBody');
+		var scrollLeftVal = e.pageX - scrollHead.parent().offset().left - this.s.mouse.offsetX;
+		//
+		var difference =  scrollHead[0].clientWidth  -  scrollLeftVal   ;
+		//is near Right edge, scroll to far right
+		if (difference < 150){
+			scrollLeftVal = scrollHead[0].scrollWidth - scrollHead[0].clientWidth;// max scrollleft Value
+		}
+		//is near Left edge, scroll to far Left
+		if(scrollLeftVal < 100){
+			scrollLeftVal= 0;
+		} 
+		//
+		scrollBody.scrollLeft(scrollLeftVal);
 
 		/* Position the element - we respect where in the element the click occured */
 		this.dom.drag.css( {
