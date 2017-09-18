@@ -891,6 +891,7 @@ $.extend( ColReorder.prototype, {
 		var that = this;
 		$(nTh)
 			.on( 'mousedown.ColReorder', function (e) {
+				if ($(e.target).is('.ui-resizable-handle')) return //fix for jquery-ui resizable
 				e.preventDefault();
 				that._fnMouseDown.call( that, e, nTh );
 			} )
