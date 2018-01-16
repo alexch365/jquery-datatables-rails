@@ -1,17 +1,15 @@
-/*
- *  CHECK FIX IN fnMouseMove function before upgrading
- *	! ColReorder 1.3.3
- * ©2010-2015 SpryMedia Ltd - datatables.net/license
+/*! ColReorder 1.4.1
+ * ©2010-2017 SpryMedia Ltd - datatables.net/license
  */
 
 /**
  * @summary     ColReorder
  * @description Provide the ability to reorder columns in a DataTable
- * @version     1.3.3
+ * @version     1.4.1
  * @file        dataTables.colReorder.js
  * @author      SpryMedia Ltd (www.sprymedia.co.uk)
  * @contact     www.sprymedia.co.uk/contact
- * @copyright   Copyright 2010-2014 SpryMedia Ltd.
+ * @copyright   Copyright 2010-2017 SpryMedia Ltd.
  *
  * This source file is free software, available under the following license:
  *   MIT license - http://datatables.net/license/mit
@@ -891,8 +889,6 @@ $.extend( ColReorder.prototype, {
 		var that = this;
 		$(nTh)
 			.on( 'mousedown.ColReorder', function (e) {
-				if ($(e.target).is('.ui-resizable-handle')) return //fix for jquery-ui resizable
-				e.preventDefault();
 				that._fnMouseDown.call( that, e, nTh );
 			} )
 			.on( 'touchstart.ColReorder', function (e) {
@@ -968,23 +964,6 @@ $.extend( ColReorder.prototype, {
 			}
 			this._fnCreateDragNode();
 		}
-		
-		// this addition is necessary for horizontal scroll while moving column
-		var scrollHead = $(this.s.dt.nTableWrapper).find('.dataTables_scrollHead');
-		var scrollBody = $(this.s.dt.nTableWrapper).find('.dataTables_scrollBody');
-		var scrollLeftVal = e.pageX - scrollHead.parent().offset().left - this.s.mouse.offsetX;
-		//
-		var difference =  scrollHead[0].clientWidth  -  scrollLeftVal   ;
-		//is near Right edge, scroll to far right
-		if (difference < 150){
-			scrollLeftVal = scrollHead[0].scrollWidth - scrollHead[0].clientWidth;// max scrollleft Value
-		}
-		//is near Left edge, scroll to far Left
-		if(scrollLeftVal < 100){
-			scrollLeftVal= 0;
-		} 
-		//
-		scrollBody.scrollLeft(scrollLeftVal);
 
 		/* Position the element - we respect where in the element the click occured */
 		this.dom.drag.css( {
@@ -1280,7 +1259,7 @@ ColReorder.defaults = {
  *  @type      String
  *  @default   As code
  */
-ColReorder.version = "1.3.3";
+ColReorder.version = "1.4.1";
 
 
 
@@ -1366,6 +1345,13 @@ $.fn.dataTable.Api.register( 'colReorder.transpose()', function ( idx, dir ) {
 	return this.context.length && this.context[0]._colReorder ?
 		this.context[0]._colReorder.fnTranspose( idx, dir ) :
 		idx;
+} );
+
+$.fn.dataTable.Api.register( 'colReorder.move()', function( from, to, drop, invalidateRows ) {
+	if (this.context.length) {
+		this.context[0]._colReorder.s.dt.oInstance.fnColReorder( from, to, drop, invalidateRows );
+	}
+	return this;
 } );
 
 
