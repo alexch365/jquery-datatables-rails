@@ -1,11 +1,11 @@
-/*! KeyTable 2.3.0
+/*! KeyTable 2.3.2
  * ©2009-2017 SpryMedia Ltd - datatables.net/license
  */
 
 /**
  * @summary     KeyTable
  * @description Spreadsheet like keyboard navigation for DataTables
- * @version     2.3.0
+ * @version     2.3.2
  * @file        dataTables.keyTable.js
  * @author      SpryMedia Ltd (www.sprymedia.co.uk)
  * @contact     www.sprymedia.co.uk/contact
@@ -226,6 +226,8 @@ $.extend( KeyTable.prototype, {
 		}
 
 		if ( this.c.editor ) {
+			var editor = this.c.editor;
+
 			// Need to disable KeyTable when the main editor is shown
 			editor.on( 'open.keyTableMain', function (e, mode, action) {
 				if ( mode !== 'inline' && that.s.enable ) {
@@ -558,7 +560,10 @@ $.extend( KeyTable.prototype, {
 			row -= pageInfo.start;
 		}
 
-		var cell = dt.cell( ':eq('+row+')', column, {search: 'applied'} );
+		// Get the cell from the current position - ignoring any cells which might
+		// not have been rendered (therefore can't use `:eq()` selector).
+		var cells = dt.cells( null, column, {search: 'applied', order: 'applied'} ).flatten();
+		var cell = dt.cell( cells[ row ] );
 
 		if ( lastFocus ) {
 			// Don't trigger a refocus on the same cell
@@ -738,6 +743,12 @@ $.extend( KeyTable.prototype, {
 		var scrollLeft = scroller.scrollLeft();
 		var containerHeight = container.height();
 		var containerWidth = container.width();
+
+		// If Scroller is being used, the table can be `position: absolute` and that
+		// needs to be taken account of in the offset. If no Scroller, this will be 0
+		if ( posOff === 'position' ) {
+			offset.top += parseInt( cell.closest('table').css('top'), 10 );
+		}
 
 		// Top correction
 		if ( offset.top < scrollTop ) {
@@ -979,7 +990,7 @@ KeyTable.defaults = {
 
 
 
-KeyTable.version = "2.3.0";
+KeyTable.version = "2.3.2";
 
 
 $.fn.dataTable.KeyTable = KeyTable;
